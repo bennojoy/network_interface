@@ -1,0 +1,4 @@
+{% for i in item.route %}
+up route add -net {{ i.network }}  netmask {{ i.netmask }} gw {{ i.gateway }} dev {{ item.device }} 
+{% endfor %}
+

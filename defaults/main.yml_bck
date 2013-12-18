@@ -1,0 +1,61 @@
+---
+
+network_interfaces:
+   - device: eth1
+     type: ethernet
+     bootproto: static
+     address: 192.168.10.16
+     netmask: 255.255.255.0
+     gateway: 192.168.10.1
+     route:
+      - network: 192.168.200.0
+        netmask: 255.255.255.0
+        gateway: 192.168.10.1
+      - network: 192.168.100.0
+        netmask: 0.0.0.0
+        gateway: 192.168.10.1
+
+network_interfaces:
+ -  device: br1
+    type: bridge
+    address: 192.168.10.11
+    netmask: 255.255.255.0
+    bootproto: static
+    gateway: 192.168.10.1
+    stp: "off"
+    ports: [eth1, eth2]
+
+
+network_interfaces:
+  - device: eth1
+    type: ethernet
+    bootproto: static
+    address: 192.168.10.12
+    netmask: 255.255.255.0
+    gateway: 192.168.10.1
+
+  - device: br1
+    type: bridge
+    address: 192.168.10.15
+    netmask: 255.255.255.0
+    bootproto: static
+    gateway: 192.168.10.1
+    stp: "off"
+    port: eth1  
+
+  - device: bond0
+    type: bond
+    address: 192.168.10.129
+    netmask: 255.255.255.0
+    bootproto: static
+    gateway: 192.168.10.1
+    bond_mode: active-backup
+    bond_miimon: 100
+    bond_slaves: [eth1, eth2]
+   
+network_routes:
+ - device: eth0
+     - network: 192.168.5.0/24
+       gateway: 192.168.2.1
+     - network: default
+       gateway: 192.168.2.1   
