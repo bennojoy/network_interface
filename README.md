@@ -25,14 +25,14 @@ Role Variables
 The variables that can be passed to this role and a brief description about
 them are as follows:
 
-# The list of ethernet interfaces to be added to the system
-network_ether_interfaces: []
+    # The list of ethernet interfaces to be added to the system
+    network_ether_interfaces: []
 
-# The list of bridge interfaces to be added to the system
-network_bridge_interfaces: []
+    # The list of bridge interfaces to be added to the system
+    network_bridge_interfaces: []
 
-# The list of bonded interfaces to be added to the system
-network_bond_interfaces: []
+    # The list of bonded interfaces to be added to the system
+    network_bond_interfaces: []
 
 Note: The values for the list are listed in the examples below.
 
@@ -114,8 +114,7 @@ example shows how to define your network configurations for all your machines.
 
 Assume your host inventory is as follows:
 
-/etc/ansible/hosts
-------------------
+### /etc/ansible/hosts
 
     [dc1]
     host1
@@ -123,8 +122,7 @@ Assume your host inventory is as follows:
 
 Describe your network configuration for each host in host vars:
 
-host_vars/host1
----------------
+### host_vars/host1
 
     network_ether_interfaces:
            - device: eth1
@@ -143,8 +141,7 @@ host_vars/host1
               bond_miimon: 100
               bond_slaves: [eth2, eth3]
 
-host_vars/host2
----------------
+### host_vars/host2
 
     network_ether_interfaces:
            - device: eth0
