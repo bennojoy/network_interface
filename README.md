@@ -1,182 +1,167 @@
-network
-========
+network_interface
+=================
 
-This roles enables users to configure various network components  in thier servers. The role can be used to configure
+_WARNING: This role can be dangerous to use. If you lose network connectivity
+to your target host by incorrectly configuring your networking, you may be
+unable to recover without physical access to the machine._
 
--  Ethernet Interfaces
+This roles enables users to configure various network components on target
+machines. The role can be used to configure:
 
--  Bridge Interfaces
-
--  Bonding interfaces
-
-- Routes in the machine.
-
+- Ethernet interfaces
+- Bridge interfaces
+- Bonded interfaces
+- Network routes
 
 Requirements
 ------------
 
-This role requires ansible 1.4 or higher and platform requirements are listed in the metadata file
+This role requires Ansible 1.4 or higher, and platform requirements are listed
+in the metadata file.
 
 Role Variables
 --------------
 
-The variables that can be passed to this role and a brief description about them are as follows:
+The variables that can be passed to this role and a brief description about
+them are as follows:
 
-```
-network_ether_interfaces: []                   #The list of ethernet interfaces to be added to the sytem
-network_bridge_interfaces: []                  #The list of bridge interfaces to be added to the sytem
-network_bond_interfaces: []                    #The list of bond interfaces to be added to the sytem
-```
+    # The list of ethernet interfaces to be added to the system
+    network_ether_interfaces: []
 
-Note: The values for the list are listed in the example's below.
+    # The list of bridge interfaces to be added to the system
+    network_bridge_interfaces: []
 
-- Examples
+    # The list of bonded interfaces to be added to the system
+    network_bond_interfaces: []
 
-1) Configure eth1 and eth2 of a host with static ip and a dhcp ip also static routes defined and a gateway.
+Note: The values for the list are listed in the examples below.
 
-```
+Examples
+--------
 
-- hosts: myhost
-  roles:
-    - role: network
-      network_ether_interfaces:
-       - device: eth1
-         bootproto: static
-         address: 192.168.10.18
-         netmask: 255.255.255.0
-         gateway: 192.168.10.1
-         route:
-          - network: 192.168.200.0
-            netmask: 255.255.255.0
-            gateway: 192.168.10.1
-          - network: 192.168.100.0
-            netmask: 255.255.255.0
-            gateway: 192.168.10.1
-       - device: eth2
-         bootproto: dhcp
+1) Configure eth1 and eth2 on a host with a static IP and a dhcp IP. Also
+define static routes and a gateway.
 
-```
+    - hosts: myhost
+      roles:
+        - role: network
+          network_ether_interfaces:
+           - device: eth1
+             bootproto: static
+             address: 192.168.10.18
+             netmask: 255.255.255.0
+             gateway: 192.168.10.1
+             route:
+              - network: 192.168.200.0
+                netmask: 255.255.255.0
+                gateway: 192.168.10.1
+              - network: 192.168.100.0
+                netmask: 255.255.255.0
+                gateway: 192.168.10.1
+           - device: eth2
+             bootproto: dhcp
 
-2) Configure a bridge interface with multiple nics added to the bridge.
+2) Configure a bridge interface with multiple NIcs added to the bridge.
 
-```
+    - hosts: myhost
+      roles:
+        - role: network
+          network_bridge_interfaces:
+           -  device: br1
+              type: bridge
+              address: 192.168.10.10
+              netmask: 255.255.255.0
+              bootproto: static
+              stp: "on"
+              ports: [eth1, eth2]
 
-- hosts: myhost
-  roles:
-    - role: network
-      network_bridge_interfaces:
-       -  device: br1
-          type: bridge
-          address: 192.168.10.10
-          netmask: 255.255.255.0
-          bootproto: static
-          stp: "on"
-          ports: [eth1, eth2]
+Note: Routes can also be added for this interface in the same way routes are
+added for ethernet interfaces.
 
-```
+3) Configure a bond interface with an "active-backup" slave configuration.
 
-Note: Route's can also be added for this interface in the same way route's are added for interface.
+    - hosts: myhost
+      roles:
+        - role: network
+          network_bond_interfaces:
+            - device: bond0
+              address: 192.168.10.128
+              netmask: 255.255.255.0
+              bootproto: static
+              bond_mode: active-backup
+              bond_miimon: 100
+              bond_slaves: [eth1, eth2]
+              route:
+              - network: 192.168.222.0
+                netmask: 255.255.255.0
+                gateway: 192.168.10.1
 
+4) Configure a bonded interface with "802.3ad" as the bonding mode and IP
+address obtained via DHCP.
 
-3) Configure a bond interface with an Active-Backup slave configuration.
+    - hosts: myhost
+      roles:
+        - role: network
+          network_bond_interfaces:
+            - device: bond0
+              bootproto: dhcp
+              bond_mode: 802.3ad
+              bond_miimon: 100
+              bond_slaves: [eth1, eth2]
 
-```
+5) All the above examples show how to configure a single host, The below
+example shows how to define your network configurations for all your machines.
 
-- hosts: myhost
-  roles:
-    - role: network
-      network_bond_interfaces:
-        - device: bond0
-          address: 192.168.10.128
-          netmask: 255.255.255.0
-          bootproto: static
-          bond_mode: active-backup
-          bond_miimon: 100
-          bond_slaves: [eth1, eth2]
-          route:
-          - network: 192.168.222.0
-            netmask: 255.255.255.0
-            gateway: 192.168.10.1
+Assume your host inventory is as follows:
 
-```
+### /etc/ansible/hosts
 
+    [dc1]
+    host1
+    host2
 
-4) Configure a bonding interface with 802.3ad as the bonding mode and address is got via dhcp
+Describe your network configuration for each host in host vars:
 
-```
-- hosts: myhost
-  roles:
-    - role: network
-      network_bond_interfaces:
-        - device: bond0
-          bootproto: dhcp
-          bond_mode: 802.3ad
-          bond_miimon: 100
-          bond_slaves: [eth1, eth2]
+### host_vars/host1
 
-```
+    network_ether_interfaces:
+           - device: eth1
+             bootproto: static
+             address: 192.168.10.18
+             netmask: 255.255.255.0
+             gateway: 192.168.10.1
+             route:
+              - network: 192.168.200.0
+                netmask: 255.255.255.0
+                gateway: 192.168.10.1
+    network_bond_interfaces:
+            - device: bond0
+              bootproto: dhcp
+              bond_mode: 802.3ad
+              bond_miimon: 100
+              bond_slaves: [eth2, eth3]
 
-1) All the above examples show how to configure a single host, The below example shows how to define your network configurations
-for all your machines.
+### host_vars/host2
 
-- Assuming your Inventory looks as follows:
+    network_ether_interfaces:
+           - device: eth0
+             bootproto: static
+             address: 192.168.10.18
+             netmask: 255.255.255.0
+             gateway: 192.168.10.1
 
-```
-/etc/ansible/hosts
+Create a playbook which applies this role to all hosts as shown below, and run
+the playbook. All the servers should have their network interfaces configured
+and routed updated.
 
-[dc1]
-host1
-host2
+    - hosts: all
+      roles:
+        - role: network
 
-```
-
-- Describe your network configuration for each host in hostvars
-
-```
-host_vars/host1
---------------
-
-
-network_ether_interfaces:
-       - device: eth1
-         bootproto: static
-         address: 192.168.10.18
-         netmask: 255.255.255.0
-         gateway: 192.168.10.1
-         route:
-          - network: 192.168.200.0
-            netmask: 255.255.255.0
-            gateway: 192.168.10.1
-network_bond_interfaces:
-        - device: bond0
-          bootproto: dhcp
-          bond_mode: 802.3ad
-          bond_miimon: 100
-          bond_slaves: [eth2, eth3]
-
-
-host_vars/host2
----------------
-
-network_ether_interfaces:
-       - device: eth0
-         bootproto: static
-         address: 192.168.10.18
-         netmask: 255.255.255.0
-         gateway: 192.168.10.1
-
-
-```
-
-- Create a playbook which applis these role to all hosts as shown below and run the playbook and all the servers shoudl have thier
-network iterfaces configured and routed updated.
-
-```
-- hosts: all
-  roles:
-    - role: network
-
-```
+Note: Ansible needs network connectivity throughout the playbook process, you
+may need to have a control interface that you do *not* modify using this
+method so that Ansible has a stable connection to configure the target
+systems.
 
 Dependencies
 ------------
