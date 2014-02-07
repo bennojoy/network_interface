@@ -2,7 +2,7 @@
 galaxy_info:
   author: "Benno Joy"
   company: AnsibleWorks
-  license: license (BSD)
+  license: BSD
   min_ansible_version: 1.4 
   platforms:
    - name: EL
@@ -21,6 +21,7 @@ galaxy_info:
       - raring
       - saucy
   categories:
-   - network
+    - network
+    - system
 dependencies: []
   
