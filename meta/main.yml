@@ -21,7 +21,7 @@ galaxy_info:
       - raring
       - saucy
   categories:
-    - network
+    - networks
     - system
 dependencies: []
   
