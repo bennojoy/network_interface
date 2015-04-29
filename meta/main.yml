@@ -2,7 +2,7 @@
 galaxy_info:
   author: "Benno Joy"
   company: AnsibleWorks
-  license: BSD
+  license: "Simplified BSD License"
   min_ansible_version: 1.4 
   platforms:
    - name: EL
